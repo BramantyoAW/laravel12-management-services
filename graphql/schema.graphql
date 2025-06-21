@@ -10,13 +10,18 @@ type Query {
 
       "Search by email address."
       email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
-    ): User @find
+    ): User @find @guard(with: ["api"])
 
     "List multiple users."
     users(
       "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
       name: String @where(operator: "like")
-    ): [User!]! @paginate(defaultCount: 10)
+    ): [User!]! @paginate(defaultCount: 10)  @guard(with: ["api"])
+}
+
+
+type Mutation {
+  login(email: String!, password: String!): AuthPayload!
 }
 
 "Account of a person who uses this application."
@@ -44,13 +49,26 @@ type User {
 }
 
 
+type PaginatedUser {
+  data: [User!]!
+  meta: PaginationMeta!
+}
+
+type PaginationMeta {
+  pagination: Pagination!
+}
+
+type Pagination {
+  total: Int!
+  count: Int!
+  per_page: Int!
+  current_page: Int!
+  total_pages: Int!
+}
+
 type AuthPayload {
   access_token: String!
   token_type: String!
   expires_in: Int!
   user: User!
-}
-
-type Mutation {
-  login(email: String!, password: String!): AuthPayload!
 }
