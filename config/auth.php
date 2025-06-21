@@ -40,7 +40,8 @@ return [
     | Supported: "session"
     |
     */
-
+    
+    /**original laravel, use this when not use graphql */
     // 'guards' => [
     //     'web' => [
     //         'driver' => 'session',
@@ -50,7 +51,7 @@ return [
 
     'guards' => [
         'api' => [
-            'driver' => 'jwt', // ✅ HARUS 'jwt' (bukan 'session')
+            'driver' => 'jwt',
             'provider' => 'users',
         ],
     ],
@@ -73,6 +74,7 @@ return [
     */
 
     'providers' => [
+        /**original laravel, use this when not use graphql */
         // 'users' => [
         //     'driver' => 'eloquent',
         //     'model' => env('AUTH_MODEL', App\Models\User::class),
