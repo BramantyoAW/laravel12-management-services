@@ -17,11 +17,18 @@ type Query {
       "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
       name: String @where(operator: "like")
     ): [User!]! @paginate(defaultCount: 10)  @guard(with: ["api"])
-}
 
+    me: Auth @guard(with: ["api"]) @field(resolver: "App\\GraphQL\\Queries\\AuthQuery@me")
+}
 
 type Mutation {
   login(email: String!, password: String!): AuthPayload!
+}
+
+type Auth {
+  user: User!
+  expires_in: Int!
+  expired_status: Boolean!
 }
 
 "Account of a person who uses this application."
