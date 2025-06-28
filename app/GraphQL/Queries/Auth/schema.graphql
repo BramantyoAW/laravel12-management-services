@@ -1,0 +1,29 @@
+type Query {
+    me: Auth @guard(with: ["api"]) @field(resolver: "App\\GraphQL\\Queries\\Auth\\AuthQuery@me")
+}
+
+type Auth {
+  user: User!
+  expires_in: Int!
+  expired_status: Boolean!
+}
+
+type User {
+    id: ID!
+    full_name: String!
+    
+    "Unique username."
+    username: String!
+
+    "Unique email address."
+    email: String!
+
+    "When the email was verified."
+    email_verified_at: DateTime
+
+    "When the account was created."
+    created_at: DateTime!
+
+    "When the account was last updated."
+    updated_at: DateTime!
+}

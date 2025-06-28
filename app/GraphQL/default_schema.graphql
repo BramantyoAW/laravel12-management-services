@@ -1,6 +1,3 @@
-
-
-# ====== /Users/macbookpro/Documents/pribadi/project/laravel12-management-services/app/GraphQL/default_schema.graphql ======
 "A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
 scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
 
@@ -68,49 +65,4 @@ type Pagination {
   per_page: Int!
   current_page: Int!
   total_pages: Int!
-}
-
-# ====== /Users/macbookpro/Documents/pribadi/project/laravel12-management-services/app/GraphQL/Queries/Auth/schema.graphql ======
-type Query {
-    me: Auth @guard(with: ["api"]) @field(resolver: "App\\GraphQL\\Queries\\Auth\\AuthQuery@me")
-}
-
-type Auth {
-  user: User!
-  expires_in: Int!
-  expired_status: Boolean!
-}
-
-type User {
-    id: ID!
-    full_name: String!
-    
-    "Unique username."
-    username: String!
-
-    "Unique email address."
-    email: String!
-
-    "When the email was verified."
-    email_verified_at: DateTime
-
-    "When the account was created."
-    created_at: DateTime!
-
-    "When the account was last updated."
-    updated_at: DateTime!
-}
-
-# ====== /Users/macbookpro/Documents/pribadi/project/laravel12-management-services/app/GraphQL/Mutations/Login/schema.graphql ======
-
-type Mutation {
-  login(email: String!, password: String!): AuthPayload! 
-    @field(resolver: "App\\GraphQL\\Mutations\\Login\\Login@login")
-}
-
-type AuthPayload {
-  access_token: String!
-  token_type: String!
-  expires_in: Int!
-  user: User!
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\GraphQL\Mutations;
+namespace App\GraphQL\Mutations\Login;
 
 use Illuminate\Support\Facades\Auth;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -18,7 +18,7 @@ class Login
      * @param  null  $_
      * @param  array<string, mixed>  $args
      */
-    public function __invoke($_, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function login($_, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         $credentials = [
             'email' => $args['email'],

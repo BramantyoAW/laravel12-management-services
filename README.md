@@ -50,3 +50,9 @@ This is a backend service built with Laravel 12, Lighthouse (GraphQL server for 
    ```bash
    curl -X POST http://localhost:8000/graphql -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_JWT_TOKEN>" -d '{"query":"query { me { id username email } }"}'
    
+
+   ```
+   Note: replace `<YOUR_JWT_TOKEN>` with a valid JWT token you can obtain by calling the `login` mutation with valid credentials.
+
+   **Create new schema file?**
+   If you created a new schema file, you'll need to run `php artisan graphql:merge-schemas` to generate the Lighthouse schema.
