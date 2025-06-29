@@ -12,28 +12,52 @@ class MergeGraphQLSchemas extends Command
 
     public function handle()
     {
-        // Lokasi utama schema hasil merge
         $outputPath = base_path('graphql/schema.graphql');
 
-        // Folder modul tempat schema berada (misal di App/GraphQL/Queries/**/schema.graphql)
-        $moduleSchemas = array_merge(
+        $schemaFiles = array_merge(
             glob(app_path('GraphQL/default_schema.graphql')),
             glob(app_path('GraphQL/Queries/*/schema.graphql')),
             glob(app_path('GraphQL/Mutations/*/schema.graphql'))
         );
 
-        $merged = '';
+        $queryFields = '';
+        $mutationFields = '';
+        $others = '';
 
-        foreach ($moduleSchemas as $filePath) {
-            $fileName = basename($filePath);
-            $merged .= "\n\n# ====== {$filePath} ======\n";
-            $merged .= File::get($filePath);
+        foreach ($schemaFiles as $filePath) {
+            $content = File::get($filePath);
+
+            // Ambil isi type Query
+            if (preg_match('/type\s+Query\s*{([^}]*)}/s', $content, $match)) {
+                $queryFields .= "\n" . trim($match[1]);
+                // Hapus bagian type Query dari content
+                $content = preg_replace('/type\s+Query\s*{[^}]*}/s', '', $content);
+            }
+
+            // Ambil isi type Mutation
+            if (preg_match('/type\s+Mutation\s*{([^}]*)}/s', $content, $match)) {
+                $mutationFields .= "\n" . trim($match[1]);
+                // Hapus bagian type Mutation dari content
+                $content = preg_replace('/type\s+Mutation\s*{[^}]*}/s', '', $content);
+            }
+
+            $others .= "\n\n# ====== {$filePath} ======\n" . trim($content);
         }
 
-        // Simpan ke file utama
-        File::ensureDirectoryExists(dirname($outputPath));
-        File::put($outputPath, $merged);
+        // Gabungkan hasil akhir
+        $mergedSchema = $others;
 
-        $this->info('✅ All module schemas merged into graphql/schema.graphql');
+        if (!empty(trim($queryFields))) {
+            $mergedSchema .= "\n\ntype Query {\n" . $queryFields . "\n}";
+        }
+
+        if (!empty(trim($mutationFields))) {
+            $mergedSchema .= "\n\ntype Mutation {\n" . $mutationFields . "\n}";
+        }
+
+        File::ensureDirectoryExists(dirname($outputPath));
+        File::put($outputPath, $mergedSchema);
+
+        $this->info('✅ All schemas merged, with combined Query and Mutation types.');
     }
 }
