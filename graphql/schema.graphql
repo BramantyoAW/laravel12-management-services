@@ -5,22 +5,7 @@
 scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
 
 "Indicates what fields are available at the top level of a query operation."
-type Query {
-    "Find a single user by an identifying attribute."
-    user(
-      "Search by primary key."
-      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
 
-      "Search by email address."
-      email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
-    ): User @find @guard(with: ["api"])
-
-    "List multiple users."
-    users(
-      "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
-      name: String @where(operator: "like")
-    ): [User!]! @paginate(defaultCount: 10)  @guard(with: ["api"])
-}
 
 type Auth {
   user: User!
@@ -71,10 +56,6 @@ type Pagination {
 }
 
 # ====== /Users/macbookpro/Documents/pribadi/project/laravel12-management-services/app/GraphQL/Queries/Auth/schema.graphql ======
-type Query {
-    me: Auth @guard(with: ["api"]) @field(resolver: "App\\GraphQL\\Queries\\Auth\\AuthQuery@me")
-}
-
 type Auth {
   user: User!
   expires_in: Int!
@@ -102,15 +83,41 @@ type User {
 }
 
 # ====== /Users/macbookpro/Documents/pribadi/project/laravel12-management-services/app/GraphQL/Mutations/Login/schema.graphql ======
-
-type Mutation {
-  login(email: String!, password: String!): AuthPayload! 
-    @field(resolver: "App\\GraphQL\\Mutations\\Login\\Login@login")
-}
-
 type AuthPayload {
   access_token: String!
   token_type: String!
   expires_in: Int!
   user: User!
+}
+
+# ====== /Users/macbookpro/Documents/pribadi/project/laravel12-management-services/app/GraphQL/Mutations/Logout/schema.graphql ======
+type Response {
+  status: Boolean!
+  message: String!
+}
+
+type Query {
+
+"Find a single user by an identifying attribute."
+    user(
+      "Search by primary key."
+      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+
+      "Search by email address."
+      email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): User @find @guard(with: ["api"])
+
+    "List multiple users."
+    users(
+      "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
+      name: String @where(operator: "like")
+    ): [User!]! @paginate(defaultCount: 10)  @guard(with: ["api"])
+me: Auth @guard(with: ["api"]) @field(resolver: "App\\GraphQL\\Queries\\Auth\\AuthQuery@me")
+}
+
+type Mutation {
+
+login(email: String!, password: String!): AuthPayload! 
+    @field(resolver: "App\\GraphQL\\Mutations\\Login\\Login@login")
+logout(token: String!): Response! @field(resolver: "App\\GraphQL\\Mutations\\Logout\\Logout@logout")
 }

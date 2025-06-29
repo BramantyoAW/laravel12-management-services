@@ -1,0 +1,8 @@
+type Mutation {
+  logout(token: String!): Response! @field(resolver: "App\\GraphQL\\Mutations\\Logout\\Logout@logout")
+}
+
+type Response {
+  status: Boolean!
+  message: String!
+}
