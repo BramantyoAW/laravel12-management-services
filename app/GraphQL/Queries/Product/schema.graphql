@@ -1,0 +1,44 @@
+type Query {
+  # Store
+  stores: [Store!]! @field(resolver: "App\\GraphQL\\Queries\\Stores\\StoreList@main")
+  store(id: ID!): Store @field(resolver: "App\\GraphQL\\Queries\\Stores\\StoreDetail@main")
+
+  # Product
+  products(store_id: ID!): [Product!]! @field(resolver: "App\\GraphQL\\Queries\\Products\\ProductList@main")
+  product(id: ID!): Product @field(resolver: "App\\GraphQL\\Queries\\Products\\ProductDetail@main")
+
+  # ProductAttribute
+  productAttributes(store_id: ID!): [ProductAttribute!]! @field(resolver: "App\\GraphQL\\Queries\\Attributes\\AttributeList@main")
+  productAttribute(id: ID!): ProductAttribute @field(resolver: "App\\GraphQL\\Queries\\Attributes\\AttributeDetail@main")
+
+  # ProductAttributeValue
+  productAttributeValues(product_id: ID!): [ProductAttributeValue!]! @field(resolver: "App\\GraphQL\\Queries\\AttributeValues\\ValueList@main")
+  productAttributeValue(id: ID!): ProductAttributeValue @field(resolver: "App\\GraphQL\\Queries\\AttributeValues\\ValueDetail@main")
+}
+
+type Product {
+  id: ID!
+  store_id: ID!
+  name: String!
+  description: String
+  price: Float!
+  store: Store!
+  attributeValues: [ProductAttributeValue!]!
+}
+
+type ProductAttribute {
+  id: ID!
+  store_id: ID!
+  name: String!
+  type: String!
+  store: Store!
+}
+
+type ProductAttributeValue {
+  id: ID!
+  product_id: ID!
+  attribute_id: ID!
+  value: String!
+  product: Product!
+  attribute: ProductAttribute!
+}
