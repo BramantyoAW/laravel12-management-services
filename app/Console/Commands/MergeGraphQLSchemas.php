@@ -21,6 +21,7 @@ class MergeGraphQLSchemas extends Command
         );
 
         $types = [];
+        $inputs = [];
         $queryFields = [];
         $mutationFields = [];
         $otherScalars = '';
@@ -28,23 +29,38 @@ class MergeGraphQLSchemas extends Command
         foreach ($schemaFiles as $filePath) {
             $content = File::get($filePath);
 
-            # Collect custom scalars (e.g., scalar DateTime)
-            $scalars = [];
+            // Custom scalars
             preg_match_all('/scalar\s+[^\s{]+[^\n]*/', $content, $scalars);
             foreach ($scalars[0] as $scalar) {
                 $otherScalars .= $scalar . "\n";
             }
             $content = preg_replace('/scalar\s+[^\s{]+[^\n]*/', '', $content);
 
-            # Match all type definitions
-            preg_match_all('/type\s+(\w+)\s*{([^}]*)}/s', $content, $matches, PREG_SET_ORDER);
-            foreach ($matches as $match) {
+            // Input definitions
+            preg_match_all('/input\s+(\w+)\s*{([^}]*)}/s', $content, $inputMatches, PREG_SET_ORDER);
+            foreach ($inputMatches as $match) {
+                $inputName = $match[1];
+                $fieldsRaw = trim($match[2]);
+                $fieldLines = array_filter(array_map('trim', explode("\n", $fieldsRaw)));
+
+                foreach ($fieldLines as $field) {
+                    $fieldName = preg_replace('/\(.*/', '', $field);
+                    $inputs[$inputName][$fieldName] = $field;
+                }
+
+                $content = preg_replace('/input\s+' . $inputName . '\s*{[^}]*}/s', '', $content);
+            }
+
+            // Type definitions (including Query, Mutation)
+            preg_match_all('/type\s+(\w+)\s*{([^}]*)}/s', $content, $typeMatches, PREG_SET_ORDER);
+            foreach ($typeMatches as $match) {
                 $typeName = $match[1];
                 $fieldsRaw = trim($match[2]);
                 $fieldLines = array_filter(array_map('trim', explode("\n", $fieldsRaw)));
 
                 foreach ($fieldLines as $field) {
                     $fieldName = preg_replace('/\(.*/', '', $field);
+
                     if ($typeName === 'Query') {
                         $queryFields[$fieldName] = $field;
                     } elseif ($typeName === 'Mutation') {
@@ -54,17 +70,25 @@ class MergeGraphQLSchemas extends Command
                     }
                 }
 
-                # Remove this type from content
                 $content = preg_replace('/type\s+' . $typeName . '\s*{[^}]*}/s', '', $content);
             }
         }
 
         $finalSchema = "";
 
-        # Append custom scalars
+        // Custom Scalars
         $finalSchema .= trim($otherScalars) . "\n\n";
 
-        # Append other types
+        // Input types
+        foreach ($inputs as $inputName => $fields) {
+            $finalSchema .= "input {$inputName} {\n";
+            foreach ($fields as $field) {
+                $finalSchema .= "  {$field}\n";
+            }
+            $finalSchema .= "}\n\n";
+        }
+
+        // Object types
         foreach ($types as $typeName => $fields) {
             $finalSchema .= "type {$typeName} {\n";
             foreach ($fields as $field) {
@@ -73,7 +97,7 @@ class MergeGraphQLSchemas extends Command
             $finalSchema .= "}\n\n";
         }
 
-        # Append Query
+        // Query
         if (!empty($queryFields)) {
             $finalSchema .= "type Query {\n";
             foreach ($queryFields as $field) {
@@ -82,7 +106,7 @@ class MergeGraphQLSchemas extends Command
             $finalSchema .= "}\n\n";
         }
 
-        # Append Mutation
+        // Mutation
         if (!empty($mutationFields)) {
             $finalSchema .= "type Mutation {\n";
             foreach ($mutationFields as $field) {
@@ -94,6 +118,6 @@ class MergeGraphQLSchemas extends Command
         File::ensureDirectoryExists(dirname($outputPath));
         File::put($outputPath, trim($finalSchema));
 
-        $this->info('✅ All GraphQL schemas merged successfully with formatting and type deduplication.');
+        $this->info('✅ All GraphQL schemas merged successfully with inputs, deduplication, and formatting.');
     }
 }
