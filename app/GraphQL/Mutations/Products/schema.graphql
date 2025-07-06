@@ -1,0 +1,41 @@
+type Mutation {
+  # Product
+  createProduct(store_id: ID!, name: String!, description: String, price: Float!, attributes: [ProductAttributeInput!]): Product @field(resolver: "App\\GraphQL\\Mutations\\Products\\ProductResolver@create")
+  updateProduct(id: ID!, name: String, description: String, price: Float, attributes: [ProductAttributeInput!]): Product @field(resolver: "App\\GraphQL\\Mutations\\Products\\ProductResolver@update")
+  deleteProduct(id: ID!): Boolean @field(resolver: "App\\GraphQL\\Mutations\\Products\\ProductResolver@delete")
+
+  # Product Attribute
+  createProductAttribute(store_id: ID!, name: String!, type: String!): ProductAttribute @field(resolver: "App\\GraphQL\\Mutations\\Products\\ProductAttributes@create")
+  deleteProductAttribute(id: ID!): Boolean @field(resolver: "App\\GraphQL\\Mutations\\Products\\ProductAttributes@delete")
+}
+
+type Product {
+  id: ID!
+  store_id: ID!
+  name: String!
+  description: String
+  price: Float!
+  store: Store!
+  attributeValues: [ProductAttributeValue!]!
+}
+
+type ProductAttribute {
+  id: ID!
+  store_id: ID!
+  name: String!
+  type: String!
+}
+
+type ProductAttributeValue {
+  id: ID!
+  product_id: ID!
+  attribute_id: ID!
+  value: String!
+  product: Product!
+  attribute: ProductAttribute!
+}
+
+input ProductAttributeInput {
+  attribute_id: ID!
+  value: String!
+}
