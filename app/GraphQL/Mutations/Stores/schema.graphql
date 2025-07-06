@@ -1,0 +1,20 @@
+type Mutation {
+  createStore(name: String!): Store @field(resolver: "App\\GraphQL\\Mutations\\Stores\\StoreCreate@main")
+  assignUserToStore(user_id: ID!, store_id: ID!, role: String): AssignReturn @field(resolver: "App\\GraphQL\\Mutations\\Stores\\AssignUserToStore@main")
+}
+
+type Store {
+  id: ID!
+  user: User!
+  name: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type User {
+    role: String!
+}
+
+type AssignReturn {
+    message: String!
+}

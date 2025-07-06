@@ -1,0 +1,30 @@
+type Query {
+  # Store
+  getAllStores(limit: Int): StorePaginated! @field(resolver: "App\\GraphQL\\Queries\\Stores\\Stores@getAllStore")
+  getStoreById(id: ID!): Store @field(resolver: "App\\GraphQL\\Queries\\Stores\\Stores@getStoreById")
+
+  # User
+  getUsersByStore(store_id: ID!): [UserStores!]! @field(resolver: "App\\GraphQL\\Queries\\Stores\\UserStore@getUsersByStore")
+}
+
+type getAllStores {
+  id: ID!
+  name: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+
+type StorePaginated {
+  data: [getAllStores!]!
+  pagination: Pagination!
+}
+
+type UserStores {
+    id: ID!
+    full_name: String!
+    email: String!
+    store_role: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
